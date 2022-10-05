@@ -35,6 +35,8 @@ public class Main extends PApplet {
     int currentDivision = 0;
     int strokeColor = 0;
 
+    Cube path;
+
     public static void main (String[] args) {
         System.out.print("Hello World!");
         PApplet.main("Main", args);
@@ -44,6 +46,7 @@ public class Main extends PApplet {
     public void setup() {
         table = loadTable("minard-data.csv", "header");
         setTable(table);
+        background(255);
     }
 
     public void setTable(Table table) {
@@ -111,11 +114,9 @@ public class Main extends PApplet {
 
     }
 
-    public void draw() {
+    public void draw()
+    {
 
-
-        //background(0, 0, 0);
-        //for(int i = 0; i < N; i++)
         if(i == N - 1) {
             i = 0;
             background(255);
@@ -130,15 +131,18 @@ public class Main extends PApplet {
 //        }
 
         //strokeColor = (255 - (direction[i] == "R" ? 100 : 0)) / division[i];
-        strokeColor = direction[i] == "R" ? 0 : 50;
-        stroke(strokeColor);
+        if(direction[i] == "R")
+        {
+            //stroke(105, 105, 105);
+        }
+        else
+        {
+            //e(220, 220, 220);
+        }
+
         strokeJoin(MITER);
-        strokeWeight((survivors[i] / 3000) + 15);
+        //strokeWeight((survivors[i] / 3000) + 15);
 
-
-//        rect((z * 800),
-//                latitude[i] * 10, survivors[i] / 12000, survivors[i] / 3000);
-        //i++;
 
         if(division[i] == division[i+1]) {
             // zi = (xi – min(x)) / (max(x) – min(x))
@@ -146,19 +150,22 @@ public class Main extends PApplet {
             float x2 = ((longitude[i+1] - longitudeMin) / (longitudeMax - longitudeMin));
             float y = ((latitude[i] - latitudeMin) / (latitudeMax - latitudeMin));
             float y2 = ((latitude[i+1] - latitudeMin) / (latitudeMax - latitudeMin));
-            line((x * GRAPH_WIDTH) + PADDING, (y * GRAPH_HEIGHT) + PADDING, (x2 * GRAPH_WIDTH) + PADDING, (y2 * GRAPH_HEIGHT) + PADDING);
+            //line((x * GRAPH_WIDTH) + PADDING, (y * GRAPH_HEIGHT) + PADDING, (x2 * GRAPH_WIDTH) + PADDING, (y2 * GRAPH_HEIGHT) + PADDING);
+            // path = new Cube(x, y, x2, y2, i);
+            path = new Cube((x * GRAPH_WIDTH) + PADDING,
+                    (y * GRAPH_HEIGHT) + PADDING,
+                    (x2 * GRAPH_WIDTH) + PADDING,
+                    (y2 * GRAPH_HEIGHT) + PADDING,
+                    i
+            );
+            path.draw();
         }
 
 
 
+
+
         i++;
-//        int upperbound = 500;
-//        //generate random values from 0-24
-//        int int_random = rand.nextInt(upperbound);
-//        line(5,5,100, int_random);
-
-
-
     }
 
     public void keyPressed() {
