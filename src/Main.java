@@ -32,7 +32,7 @@ public class Main extends PApplet {
     float latitudeMin = Float.MAX_VALUE;
     float latitudeMax = Float.MIN_VALUE;
 
-    int currentDivision = -1;
+    int currentDivision = 0;
     int strokeColor = 0;
 
     public static void main (String[] args) {
@@ -110,7 +110,7 @@ public class Main extends PApplet {
 
 
     }
-    //
+
     public void draw() {
 
 
@@ -129,12 +129,6 @@ public class Main extends PApplet {
 //            text(division[i], 40, 120);
 //        }
 
-        if(currentDivision != division[i]) {
-            currentDivision = division[i];
-            endShape();
-            beginShape();
-        }
-
         //strokeColor = (255 - (direction[i] == "R" ? 100 : 0)) / division[i];
         strokeColor = direction[i] == "R" ? 0 : 50;
         stroke(strokeColor);
@@ -149,16 +143,15 @@ public class Main extends PApplet {
         if(division[i] == division[i+1]) {
             // zi = (xi – min(x)) / (max(x) – min(x))
             float x = ((longitude[i] - longitudeMin) / (longitudeMax - longitudeMin));
-            //float x2 = ((longitude[i+1] - longitudeMin) / (longitudeMax - longitudeMin));
+            float x2 = ((longitude[i+1] - longitudeMin) / (longitudeMax - longitudeMin));
             float y = ((latitude[i] - latitudeMin) / (latitudeMax - latitudeMin));
-            //float y2 = ((latitude[i+1] - latitudeMin) / (latitudeMax - latitudeMin));
-            //line((x * GRAPH_WIDTH) + PADDING, (y * GRAPH_HEIGHT) + PADDING, (x2 * GRAPH_WIDTH) + PADDING, (y2 * GRAPH_HEIGHT) + PADDING);
-            vertex((x * GRAPH_WIDTH) + PADDING, (y * GRAPH_HEIGHT) + PADDING);
+            float y2 = ((latitude[i+1] - latitudeMin) / (latitudeMax - latitudeMin));
+            line((x * GRAPH_WIDTH) + PADDING, (y * GRAPH_HEIGHT) + PADDING, (x2 * GRAPH_WIDTH) + PADDING, (y2 * GRAPH_HEIGHT) + PADDING);
         }
 
 
 
-        //i++;
+        i++;
 //        int upperbound = 500;
 //        //generate random values from 0-24
 //        int int_random = rand.nextInt(upperbound);
@@ -169,6 +162,6 @@ public class Main extends PApplet {
     }
 
     public void keyPressed() {
-        i++;
+        //i++;
     }
 }
