@@ -11,18 +11,19 @@ public class Main extends PApplet {
 //    private static final int SCREEN_HEIGHT = 794;
 
     // 3508 x 2480 px
-    private static final int SCREEN_WIDTH =  3508 / 3; // 1600 //842
-    private static final int SCREEN_HEIGHT = 2480 / 3; // 800 //595
+    // 1500, 855
+    private static final int SCREEN_WIDTH =  1500; // 1600 //842 // 3508 / 3;
+    private static final int SCREEN_HEIGHT =  855; // 800 //595 // 2480 / 3;
 
     private static final int WIDTH_PADDING = SCREEN_WIDTH / 10;
-    private static final int GRAPH_TOP_PADDING = (int) Math.ceil(SCREEN_HEIGHT / 3.2);
-    private static final int GRAPH_BOTTOM_PADDING = (int) Math.ceil(SCREEN_HEIGHT / 2.3);
+    private static final int GRAPH_TOP_PADDING = (int) Math.ceil(SCREEN_HEIGHT / 4);
+    private static final int GRAPH_BOTTOM_PADDING = (int) Math.ceil(SCREEN_HEIGHT / 2);
     private static final int GRAPH_WIDTH = SCREEN_WIDTH - (WIDTH_PADDING * 2);
     private static final int GRAPH_HEIGHT = SCREEN_HEIGHT - (GRAPH_TOP_PADDING + GRAPH_BOTTOM_PADDING);
 
     private static final int TABLE_TOP_PADDING = (int) Math.ceil(SCREEN_HEIGHT / 16);
     private static final int TABLE_BOTTOM_PADDING = (int) Math.ceil(SCREEN_HEIGHT / 5);
-    private static final int TABLE_WIDTH_PADDING = (int) Math.ceil(SCREEN_WIDTH / 20);
+    private static final int TABLE_WIDTH_PADDING = (int) Math.ceil(SCREEN_WIDTH / 25);
 
     private static final int TABLE_WIDTH = SCREEN_WIDTH - (TABLE_WIDTH_PADDING * 2);
     private static final int TABLE_HEIGHT = SCREEN_HEIGHT - (TABLE_TOP_PADDING + TABLE_BOTTOM_PADDING);
@@ -40,7 +41,7 @@ public class Main extends PApplet {
     int [] days, dayOfMonth;
     String [] months;
     int N;
-    int i = 0;
+    //int i = 0;
 
     float longitudeMin = Float.MAX_VALUE;
     float longitudeMax = Float.MIN_VALUE;
@@ -50,7 +51,6 @@ public class Main extends PApplet {
     int currentDivision = 0;
     int strokeColor = 0;
 
-    Cube path;
 
     public static void main (String[] args) {
         System.out.print("Hello World!");
@@ -58,20 +58,28 @@ public class Main extends PApplet {
     }
 
     public void setup() {
-        //processing.size(SCREEN_WIDTH, SCREEN_HEIGHT, PDF, "assignment1.2.pdf");
-
         table = loadTable("minard-data.csv", "header");
         setTable(table);
-        fortIcon = loadImage("simpleFort15.png");
+        fortIcon = loadImage("simpleWhiteFort23.png");
         background(255);
         drawBackTable();
+        AddMap();
         stroke(0);
         strokeWeight(1);
+    }
 
+    public void settings() {
+        processing = this;
+        processing.size(SCREEN_WIDTH, SCREEN_HEIGHT);
+        //processing.size(SCREEN_WIDTH, SCREEN_HEIGHT,  "processing.pdf.PGraphicsPDF", "assignment1.2.pdf");
     }
 
     public void drawBackTable() {
         rect(TABLE_WIDTH_PADDING, TABLE_TOP_PADDING, TABLE_WIDTH, TABLE_HEIGHT);
+    }
+
+    public void drawLowerTable() {
+
     }
 
     public void setTable(Table table) {
@@ -134,58 +142,70 @@ public class Main extends PApplet {
 
     }
 
-    public void settings() {
-        processing = this;
-        processing.size(SCREEN_WIDTH, SCREEN_HEIGHT);
-        //processing.size(SCREEN_WIDTH, SCREEN_HEIGHT,  "processing.pdf.PGraphicsPDF", "assignment1.2.pdf");
-    }
+
 
     public void draw()
     {
-        if(i == N - 1) {
-            i = 0;
-            //background(255);
-        }
 
-        if(direction[i].equals("R"))
+        for(int i = 0; i < N-1; i++)
         {
-            stroke(170, 170, 170);
+            if(direction[i].equals("R"))
+            {
+                stroke(170, 170, 170);
+            }
+            else
+            {
+                stroke(252, 174, 30, 50);
+            }
+            //strokeJoin(MITER);
+            strokeWeight((survivors[i] / 3000) + 5);
+            if(division[i] == division[i+1]) {
+
+                float x = normalise(longitude[i], longitudeMin, longitudeMax);
+                float x2 = normalise(longitude[i+1], longitudeMin, longitudeMax);
+                float y = normalise(latitude[i], latitudeMin, latitudeMax);
+                float y2 = normalise(latitude[i+1], latitudeMin, latitudeMax);
+
+                line(scaleToGraph(x, GRAPH_WIDTH, WIDTH_PADDING),
+                        scaleToGraph(y, GRAPH_HEIGHT, GRAPH_TOP_PADDING),
+                        scaleToGraph(x2, GRAPH_WIDTH, WIDTH_PADDING),
+                        scaleToGraph(y2, GRAPH_HEIGHT, GRAPH_TOP_PADDING)
+                );
+            }
         }
-        else
-        {
-            stroke(252, 174, 30, 100);
-        }
-
-        //strokeJoin(MITER);
-        strokeWeight((survivors[i] / 3000) + 5);
 
 
-        if(division[i] == division[i+1]) {
 
-            float x = normalise(longitude[i], longitudeMin, longitudeMax);
-            float x2 = normalise(longitude[i+1], longitudeMin, longitudeMax);
-            float y = normalise(latitude[i], latitudeMin, latitudeMax);
-            float y2 = normalise(latitude[i+1], latitudeMin, latitudeMax);
-
-            line(scaleToGraph(x, GRAPH_WIDTH, WIDTH_PADDING),
-                    scaleToGraph(y, GRAPH_HEIGHT, GRAPH_TOP_PADDING),
-                    scaleToGraph(x2, GRAPH_WIDTH, WIDTH_PADDING),
-                    scaleToGraph(y2, GRAPH_HEIGHT, GRAPH_TOP_PADDING)
-            );
-        }
-
-        drawCities(cityLatitude, cityLongitude, cityNames);
-        i++;
 
         if(frameCount % 10 == 0) {
             System.out.println(frameCount);
         }
 
-        if (frameCount == 500) {
-            exit();
+        if(frameCount == 10) {
+            drawCities(cityLatitude, cityLongitude, cityNames);
+            drawLowerTable();
         }
+        if(frameCount == 11) {
+
+
+            while(true) {
+
+            }
+        }
+
+//        if (frameCount == 7) {
+//            exit();
+//        }
+
     }
 
+    public void AddMap() {
+        // Accurate, just a few towns got cut
+        //        PImage map = loadImage("map1500.png");
+        //        image(map, 50, 75);
+        PImage map = loadImage("maps/satelite1320_400.PNG");
+        image(map, 85, 100);
+    }
     public void keyPressed() {
         //i++;
     }
@@ -202,9 +222,11 @@ public class Main extends PApplet {
             float tempY = normalise(lat[i], latitudeMin, latitudeMax);
             tempX = scaleToGraph(tempX, GRAPH_WIDTH, WIDTH_PADDING);
             tempY = scaleToGraph(tempY, GRAPH_HEIGHT, GRAPH_TOP_PADDING);
-            image(fortIcon, tempX, tempY);
-            fill(0);
-            text(cityNames[i], tempX, tempY + 40);
+            image(fortIcon, tempX, tempY - (fortIcon.height/2));
+
+            fill(255);
+            text(cityNames[i], tempX - (cityNames[i].length() * 2), tempY + (fortIcon.height/2) + 10);
+
         }
     }
 
@@ -212,12 +234,3 @@ public class Main extends PApplet {
         return (value * scale) + padding;
     }
 }
-
-
-//            path = new Cube((x * GRAPH_WIDTH) + PADDING,
-//                    (y * GRAPH_HEIGHT) + PADDING,
-//                    (x2 * GRAPH_WIDTH) + PADDING,
-//                    (y2 * GRAPH_HEIGHT) + PADDING,
-//                    i
-//                    );
-//                    path.draw();
