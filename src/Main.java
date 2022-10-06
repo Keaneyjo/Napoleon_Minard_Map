@@ -3,14 +3,16 @@ import processing.core.PImage;
 import processing.data.Table;
 import processing.data.TableRow;
 import java.lang.Math;
+//import processing.pdf.*;
 
 public class Main extends PApplet {
     // Actual values
 //    private static final int SCREEN_WIDTH = 1123;
 //    private static final int SCREEN_HEIGHT = 794;
 
-    private static final int SCREEN_WIDTH = 842 ; // 1600
-    private static final int SCREEN_HEIGHT = 595 ; // 800
+    // 3508 x 2480 px
+    private static final int SCREEN_WIDTH =  3508 / 3; // 1600 //842
+    private static final int SCREEN_HEIGHT = 2480 / 3; // 800 //595
 
     private static final int WIDTH_PADDING = SCREEN_WIDTH / 10;
     private static final int GRAPH_TOP_PADDING = (int) Math.ceil(SCREEN_HEIGHT / 3.2);
@@ -20,7 +22,7 @@ public class Main extends PApplet {
 
     private static final int TABLE_TOP_PADDING = (int) Math.ceil(SCREEN_HEIGHT / 16);
     private static final int TABLE_BOTTOM_PADDING = (int) Math.ceil(SCREEN_HEIGHT / 5);
-    private static final int TABLE_WIDTH_PADDING = (int) Math.ceil(SCREEN_WIDTH / 16);
+    private static final int TABLE_WIDTH_PADDING = (int) Math.ceil(SCREEN_WIDTH / 20);
 
     private static final int TABLE_WIDTH = SCREEN_WIDTH - (TABLE_WIDTH_PADDING * 2);
     private static final int TABLE_HEIGHT = SCREEN_HEIGHT - (TABLE_TOP_PADDING + TABLE_BOTTOM_PADDING);
@@ -56,9 +58,11 @@ public class Main extends PApplet {
     }
 
     public void setup() {
+        //processing.size(SCREEN_WIDTH, SCREEN_HEIGHT, PDF, "assignment1.2.pdf");
+
         table = loadTable("minard-data.csv", "header");
         setTable(table);
-        fortIcon = loadImage("simpleFort30.png");
+        fortIcon = loadImage("simpleFort15.png");
         background(255);
         drawBackTable();
         stroke(0);
@@ -68,13 +72,6 @@ public class Main extends PApplet {
 
     public void drawBackTable() {
         rect(TABLE_WIDTH_PADDING, TABLE_TOP_PADDING, TABLE_WIDTH, TABLE_HEIGHT);
-        //rect(100, 100, 1400, 600);
-        //image(fortIconm, TABLE_WIDTH_PADDING, TABLE_TOP_PADDING);
-        System.out.println(TABLE_WIDTH_PADDING);
-        System.out.println(TABLE_WIDTH);
-        System.out.println(TABLE_WIDTH_PADDING + TABLE_WIDTH);
-        System.out.println(SCREEN_WIDTH - (TABLE_WIDTH_PADDING * 2));
-
     }
 
     public void setTable(Table table) {
@@ -139,34 +136,24 @@ public class Main extends PApplet {
 
     public void settings() {
         processing = this;
-        processing.size(SCREEN_WIDTH, SCREEN_HEIGHT, PDF, "assignment1.2.pdf");
+        processing.size(SCREEN_WIDTH, SCREEN_HEIGHT);
+        //processing.size(SCREEN_WIDTH, SCREEN_HEIGHT,  "processing.pdf.PGraphicsPDF", "assignment1.2.pdf");
     }
 
     public void draw()
     {
-
         if(i == N - 1) {
             i = 0;
             //background(255);
         }
 
-//        if(currentDivision != division[i]) {
-//            currentDivision = division[i];
-//            background(255, 255, 255);
-//            textSize(120);
-//            fill(0, 408, 612);
-//            text(division[i], 40, 120);
-//        }
-
-
         if(direction[i].equals("R"))
         {
-            //stroke(0, 0, 0, 50); // black
             stroke(170, 170, 170);
         }
         else
         {
-            stroke(252, 174, 30, 50);
+            stroke(252, 174, 30, 100);
         }
 
         //strokeJoin(MITER);
@@ -175,27 +162,28 @@ public class Main extends PApplet {
 
         if(division[i] == division[i+1]) {
 
-
             float x = normalise(longitude[i], longitudeMin, longitudeMax);
             float x2 = normalise(longitude[i+1], longitudeMin, longitudeMax);
             float y = normalise(latitude[i], latitudeMin, latitudeMax);
             float y2 = normalise(latitude[i+1], latitudeMin, latitudeMax);
-
-            line((x * GRAPH_WIDTH) + WIDTH_PADDING,
-                    (y * GRAPH_HEIGHT) + GRAPH_TOP_PADDING,
-                    (x2 * GRAPH_WIDTH) + WIDTH_PADDING,
-                    (y2 * GRAPH_HEIGHT) + GRAPH_TOP_PADDING);
 
             line(scaleToGraph(x, GRAPH_WIDTH, WIDTH_PADDING),
                     scaleToGraph(y, GRAPH_HEIGHT, GRAPH_TOP_PADDING),
                     scaleToGraph(x2, GRAPH_WIDTH, WIDTH_PADDING),
                     scaleToGraph(y2, GRAPH_HEIGHT, GRAPH_TOP_PADDING)
             );
-            //System.out.println(tempX+ ":" + tempY);
         }
 
         drawCities(cityLatitude, cityLongitude, cityNames);
         i++;
+
+        if(frameCount % 10 == 0) {
+            System.out.println(frameCount);
+        }
+
+        if (frameCount == 500) {
+            exit();
+        }
     }
 
     public void keyPressed() {
@@ -217,7 +205,6 @@ public class Main extends PApplet {
             image(fortIcon, tempX, tempY);
             fill(0);
             text(cityNames[i], tempX, tempY + 40);
-
         }
     }
 
