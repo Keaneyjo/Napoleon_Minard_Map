@@ -26,7 +26,15 @@ public class Main extends PApplet {
     private static final int TABLE_WIDTH_PADDING = (int) Math.ceil(SCREEN_WIDTH / 25);
 
     private static final int TABLE_WIDTH = SCREEN_WIDTH - (TABLE_WIDTH_PADDING * 2);
-    private static final int TABLE_HEIGHT = SCREEN_HEIGHT - (TABLE_TOP_PADDING + TABLE_BOTTOM_PADDING);
+    private static final int TABLE_HEIGHT = GRAPH_TOP_PADDING + GRAPH_HEIGHT + 50;
+    // SCREEN_HEIGHT - (TABLE_TOP_PADDING); //+ TABLE_BOTTOM_PADDING
+
+    private static final int LOWER_TABLE_TOP_PADDING = TABLE_HEIGHT + TABLE_TOP_PADDING;
+    private static final int LOWER_TABLE_WIDTH_PADDING = TABLE_WIDTH_PADDING;
+    private static final int LOWER_TABLE_HEIGHT = SCREEN_HEIGHT - (TABLE_TOP_PADDING + TABLE_HEIGHT + 50);
+    private static final int LOWER_TABLE_WIDTH = TABLE_WIDTH;
+
+    private static final int LOWER_TABLE_TEXT_HEIGHT = 40;
 
     public static PApplet processing;
     public static Table table;
@@ -48,6 +56,11 @@ public class Main extends PApplet {
     float latitudeMin = Float.MAX_VALUE;
     float latitudeMax = Float.MIN_VALUE;
 
+    float tempMin = Float.MAX_VALUE;
+    float tempMax = Float.MIN_VALUE;
+    float tempLongMin = Float.MAX_VALUE;
+    float tempLongMax = Float.MIN_VALUE;
+
     int currentDivision = 0;
     int strokeColor = 0;
 
@@ -62,7 +75,9 @@ public class Main extends PApplet {
         setTable(table);
         fortIcon = loadImage("simpleWhiteFort23.png");
         background(255);
+
         drawBackTable();
+
         AddMap();
         stroke(0);
         strokeWeight(1);
@@ -79,8 +94,12 @@ public class Main extends PApplet {
     }
 
     public void drawLowerTable() {
-
+        stroke(1);
+        strokeWeight(1); // 4 is the default
+        noFill();
+        rect(LOWER_TABLE_WIDTH_PADDING, LOWER_TABLE_TOP_PADDING, LOWER_TABLE_WIDTH, LOWER_TABLE_HEIGHT);
     }
+
 
     public void setTable(Table table) {
         N = table.getRowCount() - 1;
@@ -137,42 +156,98 @@ public class Main extends PApplet {
             if(latitude[i] > latitudeMax){
                 latitudeMax = latitude[i];
             }
+
+            if(temperature[i] < tempMin) {
+                tempMin = temperature[i];
+            }
+
+            if(temperature[i] > tempMax){
+                tempMax = temperature[i];
+            }
+
+            if(temperatureLongitude[i] < tempLongMin) {
+                tempLongMin = temperatureLongitude[i];
+            }
+
+            if(temperatureLongitude[i] > tempLongMax){
+                tempLongMax = temperatureLongitude[i];
+            }
         }
 
 
     }
 
+    public void drawTemperatureTable()
+    {
+        drawTemperatureLine();
+    }
+    public void drawTemperatureLine()
+    {
+        stroke(1);
+        strokeWeight(1); // 4 is the default
+        fill(0);
+
+        float x, x2, y, y2;
+
+        for(int i = 0; i < temperature.length - 1; i++)
+        {
+//            x = (normalise(temperatureLongitude[i], tempLongMin, tempLongMax) * LOWER_TABLE_WIDTH) + LOWER_TABLE_WIDTH_PADDING;
+//            y = LOWER_TABLE_TOP_PADDING + LOWER_TABLE_TEXT_HEIGHT + (normalise(temperature[i], tempMin, tempMax) * 100);
+//            x2 = (normalise(temperatureLongitude[i+1], tempLongMin, tempLongMax) * LOWER_TABLE_WIDTH) + LOWER_TABLE_WIDTH_PADDING;
+//            y2 = LOWER_TABLE_TOP_PADDING + LOWER_TABLE_TEXT_HEIGHT + (normalise(temperature[i+1], tempMin, tempMax) * 100);
+
+            // tempMin and tempMax are reverse, since we are dealing with negatives
+//            x = normalise(temperatureLongitude[i], longitudeMin, longitudeMax);
+//            y = LOWER_TABLE_TOP_PADDING + LOWER_TABLE_TEXT_HEIGHT + (normalise(temperature[i], tempMax, tempMin) * 100);
+//            x2 = (normalise(temperatureLongitude[i+1], longitudeMin, longitudeMax) * GRAPH_WIDTH) + LOWER_TABLE_WIDTH_PADDING;
+//            y2 = LOWER_TABLE_TOP_PADDING + LOWER_TABLE_TEXT_HEIGHT + (normalise(temperature[i+1], tempMax, tempMin) * 100);
+
+            x = normalise(temperatureLongitude[i], longitudeMin, longitudeMax);
+            y =  normalise(temperature[i], tempMax, tempMin);
+            x2 = normalise(temperatureLongitude[i+1], longitudeMin, longitudeMax);
+            y2 = normalise(temperature[i+1], tempMax, tempMin);
+
+            //line(x, y, x2, y2);
+            line(scaleToGraph(x, GRAPH_WIDTH, WIDTH_PADDING),
+                    scaleToGraph(y, 100, (LOWER_TABLE_TOP_PADDING + LOWER_TABLE_TEXT_HEIGHT)),
+                    scaleToGraph(x2, GRAPH_WIDTH, WIDTH_PADDING),
+                    scaleToGraph(y2, 100, (LOWER_TABLE_TOP_PADDING + LOWER_TABLE_TEXT_HEIGHT))
+            );
+        }
+    }
 
 
     public void draw()
     {
-
-        for(int i = 0; i < N-1; i++)
-        {
-            if(direction[i].equals("R"))
+        if(frameCount < 13) {
+            for(int i = 0; i < N-1; i++)
             {
-                stroke(170, 170, 170);
-            }
-            else
-            {
-                stroke(252, 174, 30, 50);
-            }
-            //strokeJoin(MITER);
-            strokeWeight((survivors[i] / 3000) + 5);
-            if(division[i] == division[i+1]) {
+                if(direction[i].equals("R"))
+                {
+                    stroke(170, 170, 170, 50);
+                }
+                else
+                {
+                    stroke(252, 174, 30, 50);
+                }
+                //strokeJoin(MITER);
+                strokeWeight((survivors[i] / 3000) + 5);
+                if(division[i] == division[i+1]) {
 
-                float x = normalise(longitude[i], longitudeMin, longitudeMax);
-                float x2 = normalise(longitude[i+1], longitudeMin, longitudeMax);
-                float y = normalise(latitude[i], latitudeMin, latitudeMax);
-                float y2 = normalise(latitude[i+1], latitudeMin, latitudeMax);
+                    float x = normalise(longitude[i], longitudeMin, longitudeMax);
+                    float x2 = normalise(longitude[i+1], longitudeMin, longitudeMax);
+                    float y = normalise(latitude[i], latitudeMin, latitudeMax);
+                    float y2 = normalise(latitude[i+1], latitudeMin, latitudeMax);
 
-                line(scaleToGraph(x, GRAPH_WIDTH, WIDTH_PADDING),
-                        scaleToGraph(y, GRAPH_HEIGHT, GRAPH_TOP_PADDING),
-                        scaleToGraph(x2, GRAPH_WIDTH, WIDTH_PADDING),
-                        scaleToGraph(y2, GRAPH_HEIGHT, GRAPH_TOP_PADDING)
-                );
+                    line(scaleToGraph(x, GRAPH_WIDTH, WIDTH_PADDING),
+                            scaleToGraph(y, GRAPH_HEIGHT, GRAPH_TOP_PADDING),
+                            scaleToGraph(x2, GRAPH_WIDTH, WIDTH_PADDING),
+                            scaleToGraph(y2, GRAPH_HEIGHT, GRAPH_TOP_PADDING)
+                    );
+                }
             }
         }
+
 
 
 
@@ -181,13 +256,14 @@ public class Main extends PApplet {
             System.out.println(frameCount);
         }
 
-        if(frameCount == 10) {
+        if(frameCount == 13) {
             drawCities(cityLatitude, cityLongitude, cityNames);
+
             drawLowerTable();
+            drawTemperatureTable();
         }
-        if(frameCount == 11) {
 
-
+        if(frameCount == 14) {
             while(true) {
 
             }
@@ -203,9 +279,17 @@ public class Main extends PApplet {
         // Accurate, just a few towns got cut
         //        PImage map = loadImage("map1500.png");
         //        image(map, 50, 75);
-        PImage map = loadImage("maps/satelite1320_400.PNG");
-        image(map, 85, 100);
+
+//        PImage map = loadImage("maps/satelite1320_400.PNG");
+//        image(map, 85, 100);
+
+//        PImage map = loadImage("maps/newmaps/labellessMap1300.PNG");
+//        image(map, 85, 100);
+
+        PImage map = loadImage("maps/newmaps/greylabellessMapAdjusted1320.png");
+        image(map, 85, 40);
     }
+
     public void keyPressed() {
         //i++;
     }
@@ -216,18 +300,36 @@ public class Main extends PApplet {
     }
 
     public void drawCities(float[] lat, float[] lon, String[] names) {
+        textSize(14);
+
         for(int i = 0; i < CONSTANTS.TOTAL_NUMBER_OF_CITIES; i++)
         {
             float tempX = normalise(lon[i], longitudeMin, longitudeMax);
             float tempY = normalise(lat[i], latitudeMin, latitudeMax);
             tempX = scaleToGraph(tempX, GRAPH_WIDTH, WIDTH_PADDING);
             tempY = scaleToGraph(tempY, GRAPH_HEIGHT, GRAPH_TOP_PADDING);
+
+            if(cityNames[i].equals("Smorgoni"))
+            {
+                tempX -= 10;
+            }
+
             image(fortIcon, tempX, tempY - (fortIcon.height/2));
 
+            drawTextStroke(cityNames[i], tempX - (cityNames[i].length() * 2), tempY + (fortIcon.height/2) + 10);
             fill(255);
             text(cityNames[i], tempX - (cityNames[i].length() * 2), tempY + (fortIcon.height/2) + 10);
-
         }
+    }
+
+    public void drawTextStroke(String text, float x, float y) {
+        fill(0);
+        for(int i = -1; i < 2; i++)
+        {
+            text(text, x+i,y);
+            text(text, x,y+i);
+        }
+        //noFill();
     }
 
     public float scaleToGraph(float value, int scale, int padding) {
