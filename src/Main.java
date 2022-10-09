@@ -130,6 +130,20 @@ public class Main extends PApplet {
         rect(LOWER_TABLE_WIDTH_PADDING, LOWER_TABLE_TOP_PADDING, LOWER_TABLE_WIDTH, LOWER_TABLE_HEIGHT);
     }
 
+    public void drawLowerTableTitle() {
+        fill(255);
+        stroke(0);
+        strokeWeight(3);
+
+        String text = "Graphic Table of the Temperature during the Campaign in Various Degrees";
+        textSize(28);
+        float titleWidth = textWidth(text);
+        rect(370, LOWER_TABLE_TOP_PADDING + 15, titleWidth + 15, LOWER_TABLE_TEXT_HEIGHT - 30);
+
+        fill(0);
+        text(text, 370 + 5, LOWER_TABLE_TOP_PADDING + 45);
+    }
+
     public void setTable(Table table) {
         N = table.getRowCount() - 1;
 
@@ -210,6 +224,7 @@ public class Main extends PApplet {
         drawTemperatureRows();
         drawTemperatureLine();
         drawVerticalTemperatureLines();
+        drawLowerTableDescription();
     }
 
     public void drawTemperatureRows() {
@@ -236,18 +251,26 @@ public class Main extends PApplet {
         text("-25°", lineEnd + 10, top + 66);
         text("-38°", lineEnd + 10, top + 100);
 
+        fill(0);
+        lineEnd += 25;
+        text(" °F ", lineEnd + 10, top - 20);
+        text(" 32°", lineEnd + 10, top);
+        text(" 10°", lineEnd + 10, top + 33);
+        text("-13°", lineEnd + 10, top + 66);
+        text("-36°", lineEnd + 10, top + 100);
+
 
     }
 
     public void drawTemperatureLine() {
-        stroke(0, 0, 255);
-        strokeWeight(3); // 4 is the default
-        fill(150);
-
         float x, x2, y, y2;
+        String text = "";
 
         for(int i = 0; i < temperature.length - 1; i++)
         {
+            stroke(0, 0, 255);
+            strokeWeight(3); // 4 is the default
+            fill(150);
 //            x = (normalise(temperatureLongitude[i], tempLongMin, tempLongMax) * LOWER_TABLE_WIDTH) + LOWER_TABLE_WIDTH_PADDING;
 //            y = LOWER_TABLE_TOP_PADDING + LOWER_TABLE_TEXT_HEIGHT + (normalise(temperature[i], tempMin, tempMax) * 100);
 //            x2 = (normalise(temperatureLongitude[i+1], tempLongMin, tempLongMax) * LOWER_TABLE_WIDTH) + LOWER_TABLE_WIDTH_PADDING;
@@ -270,6 +293,29 @@ public class Main extends PApplet {
                     scaleToGraph(x2, GRAPH_WIDTH, WIDTH_PADDING),
                     scaleToGraph(y2, 100, (LOWER_TABLE_TOP_PADDING + LOWER_TABLE_TEXT_HEIGHT))
             );
+
+            textSize(12);
+            stroke(0, 0, 0);
+            fill(0);
+
+            x = scaleToGraph(x, GRAPH_WIDTH, WIDTH_PADDING) - 25;
+            y = scaleToGraph(y, 100, (LOWER_TABLE_TOP_PADDING + LOWER_TABLE_TEXT_HEIGHT)) + 20;
+            if(i != 0 && temperature[i] != -11) {
+                text = Float.toString(temperature[i]) + "°, " + months[i] + " " + dayOfMonth[i];
+                if(temperature[i] == -26){
+                    y += 10;
+                }
+                if(temperature[i] == -24){
+                    x += 5;
+                    y -= 3;
+                }
+            }
+            else if(temperature[i] == -11){
+                x += 15;
+                text = Float.toString(temperature[i]) + "°";
+            }
+            text(text, x, y);
+
         }
 
         stroke(1);
@@ -280,7 +326,7 @@ public class Main extends PApplet {
         strokeWeight(1);
 
         // 9 points total
-        float [] verticalLinesLength = new float [] {115, 90, 85, 95, 75, 75, 95, 90};
+        float [] verticalLinesLength = new float [] {115, 90, 85, 95, 70, 65, 80, 80};
         float x, x2, y, y2;
 
         for(int i = 0; i < verticalLinesLength.length; i++)
@@ -296,6 +342,7 @@ public class Main extends PApplet {
                     scaleToGraph(x, GRAPH_WIDTH, WIDTH_PADDING),
                     scaleToGraph(y2, 100, (LOWER_TABLE_TOP_PADDING + LOWER_TABLE_TEXT_HEIGHT))
             );
+
         }
     }
 
@@ -308,7 +355,7 @@ public class Main extends PApplet {
         float x = normalise(temperatureLongitude[i], longitudeMin, longitudeMax);
         float y =  normalise(temperature[i], tempMax, tempMin);
 
-        float y2 = normalise(temperature[i] + 87, tempMax, tempMin);
+        float y2 = normalise(temperature[i] + 83, tempMax, tempMin);
 
         //line(x, y, x2, y2);
         line(scaleToGraph(x, GRAPH_WIDTH, WIDTH_PADDING),
@@ -354,9 +401,9 @@ public class Main extends PApplet {
                 "Student ID: 18328855";
 
         String description = "Drawn by M. Minard, Inspector General of Bridges and Roads (retired). Paris, November 20, 1869.\n" +
-                "The numbers of men present are represented by the widths of the colored zones at a rate of one millimeter for every ten thousand men; they are further written across the zones. The red designates the men who enter Russia, the black those who leave it. \n" +
+                "\"The numbers of men present are represented by the widths of the colored zones at a rate of one millimeter for every ten thousand men; they are further written across the zones. The red designates the men who enter Russia, the black those who leave it. \n" +
                 "— The information which has served to draw up the map has been extracted from the works of M. M. Thiers, de Ségur, de Fezensac, de Chambray and the unpublished diary of Jacob, the pharmacist of the Army since October 28th.\n" +
-                "In order to better judge with the eye the diminution of the army, I have assumed that the troops of Prince Jérôme and of Marshal Davout, who had been detached at Minsk and Mogilev and have rejoined near Orsha and Vitebsk, had always marched with the army.\n" +
+                "In order to better judge with the eye the diminution of the army, I have assumed that the troops of Prince Jérôme and of Marshal Davout, who had been detached at Minsk and Mogilev and have rejoined near Orsha and Vitebsk, had always marched with the army. [1]\"\n" +
                 "\n";
 
         description += author;
@@ -368,6 +415,17 @@ public class Main extends PApplet {
 
 
 
+    }
+
+    public void drawLowerTableDescription() {
+        String text = "[1] Title & Description based off Wikipedia Entry: https://en.wikipedia.org/wiki/Charles_Joseph_Minard#/media/File:Redrawing_of_Minard's_Napoleon_map.svg";
+        text += "\n[2] Map Image Sourced from: https://snazzymaps.com/";
+        int x = WIDTH_PADDING;
+        int y = (LOWER_TABLE_TOP_PADDING + LOWER_TABLE_TEXT_HEIGHT + 160);
+
+        fill(50);
+        textSize(16);
+        text(text, x, y);
     }
 
     public void drawChart() {
@@ -412,6 +470,8 @@ public class Main extends PApplet {
         if(frameCount == 13) {
             drawCities(cityLatitude, cityLongitude, cityNames);
             drawTitleAndDescription();
+            drawLowerTableTitle();
+            drawLegend();
         }
 
         if(frameCount == 14) {
@@ -475,6 +535,53 @@ public class Main extends PApplet {
             fill(255);
             text(cityNames[i], tempX - (cityNames[i].length() * 2), tempY + (fortIcon.height/2) + 10);
         }
+    }
+
+    public void drawLegend() {
+        int x = LOWER_TABLE_WIDTH_PADDING + LOWER_TABLE_WIDTH - 120;
+        int y = LOWER_TABLE_TOP_PADDING - 280;
+
+        strokeWeight(1);
+        stroke(100);
+        fill(245);
+        rect(x, y, 150, 170);
+
+        fill(50);
+        PFont myFont = createFont("Georgia Italic", 32);
+        textFont(myFont);
+        textSize(16);
+        String text = "Legend";
+        float textWidth = textWidth(text);
+        text(text, x + 10, y + 20);
+        line(x + 10, y+25, x + 10 + textWidth, y+25);
+
+        y += 30;
+        x += 10;
+
+        fill(252, 174, 30);
+        rect(x, y, 25, 25);
+        text("Advancing", x + 30, y + 17);
+
+        fill(170, 170, 170);
+        rect(x, y+ 30, 25, 25);
+        text("Retreating", x + 30, y + 47);
+
+
+        y += 82;
+        float strokeWidth = (survivors[16] / 3000) + 5;
+        x += strokeWidth / 2;
+
+        strokeWeight(strokeWidth);
+        line(x, y, x, y);
+        text("100K", x + 25, y + 5);
+
+
+        y += strokeWidth;
+        strokeWidth = (survivors[46] / 3000) + 5;
+
+        strokeWeight(strokeWidth);
+        line(x, y, x, y);
+        text("6K", x + 25, y + 5);
     }
 
     public void drawTextStroke(String text, float x, float y) {
