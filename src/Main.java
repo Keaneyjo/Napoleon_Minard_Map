@@ -55,7 +55,7 @@ public class Main extends PApplet {
 
     private static final int LOWER_TABLE_TOP_PADDING = TABLE_HEIGHT + TABLE_TOP_PADDING;
     private static final int LOWER_TABLE_WIDTH_PADDING = TABLE_WIDTH_PADDING;
-    private static final int LOWER_TABLE_HEIGHT = SCREEN_HEIGHT - (TABLE_TOP_PADDING + TABLE_HEIGHT + 85);
+    private static final int LOWER_TABLE_HEIGHT = SCREEN_HEIGHT - (TABLE_TOP_PADDING + TABLE_HEIGHT + 185);
     private static final int LOWER_TABLE_WIDTH = TABLE_WIDTH;
 
     private static final int LOWER_TABLE_TEXT_HEIGHT = 70;
@@ -90,6 +90,7 @@ public class Main extends PApplet {
     int currentDivision = 0;
     int strokeColor = 0;
 
+    Table simpleTable;
 
     public static void main (String[] args) {
         System.out.print("Hello World!");
@@ -97,7 +98,9 @@ public class Main extends PApplet {
     }
 
     public void setup() {
+
         table = loadTable("minard-data.csv", "header");
+        simpleTable = loadTable("minard-simple.csv", "header");
         setTable(table);
         fortIcon = loadImage("simpleWhiteFort23.png");
         background(255);
@@ -115,7 +118,9 @@ public class Main extends PApplet {
     public void settings() {
         processing = this;
         processing.size(SCREEN_WIDTH, SCREEN_HEIGHT);
-        //processing.size(SCREEN_WIDTH, SCREEN_HEIGHT,  "processing.pdf.PGraphicsPDF", "assignment1.2.pdf");
+        //processing.size(SCREEN_WIDTH, SCREEN_HEIGHT,  "processing.pdf.PGraphicsPDF", "assignment1.2final.pdf");
+        fullScreen();
+
     }
 
     public void drawBackTable() {
@@ -420,6 +425,10 @@ public class Main extends PApplet {
     public void drawLowerTableDescription() {
         String text = "[1] Title & Description based off Wikipedia Entry: https://en.wikipedia.org/wiki/Charles_Joseph_Minard#/media/File:Redrawing_of_Minard's_Napoleon_map.svg";
         text += "\n[2] Map Image Sourced from: https://snazzymaps.com/";
+
+        //text += "\n\n Napolean's Campaign on Russia in 1812. Soldiers marched towards Moscow, splitting into at least 3 separate divisions along the way, finally retreating and regrouping back in Kovno.\n" +
+                //"Russia's brutal Winter weather had taken it's tool on the company, reducing numbers from 320K to a tiny 10K, resulting in an absolute defeat to the French Army.";
+
         int x = WIDTH_PADDING;
         int y = (LOWER_TABLE_TOP_PADDING + LOWER_TABLE_TEXT_HEIGHT + 160);
 
@@ -429,6 +438,8 @@ public class Main extends PApplet {
     }
 
     public void drawChart() {
+        String numberOfSurvivors = "";
+
         for(int i = 0; i < N-1; i++)
         {
             if(direction[i].equals("R"))
@@ -472,12 +483,21 @@ public class Main extends PApplet {
             drawTitleAndDescription();
             drawLowerTableTitle();
             drawLegend();
+            AddFigures();
         }
 
-        if(frameCount == 14) {
-            while(true) {
+        if(frameCount == 21) {
+            //processing.size(SCREEN_WIDTH, SCREEN_HEIGHT,  "processing.pdf.PGraphicsPDF", "assignment1.2final.pdf");
+            noLoop();
+                beginRecord( "processing.pdf.PGraphicsPDF", "assignment1.2f.pdf");
+        }
+        if(frameCount == 22)
+        {
+            endRecord();
+            //exit();
+        }
+        if(frameCount == 23) {
 
-            }
         }
 
 //        if (frameCount == 7) {
@@ -507,6 +527,95 @@ public class Main extends PApplet {
 
     public void keyPressed() {
         //i++;
+    }
+
+    public void readyTable(Table table) {
+        N = table.getRowCount() - 1;
+
+        // LONC	LATC	CITY	LONT	TEMP	DAYS	MON	DAY	LONP	LATP	SURV	DIR	DIV
+        longitude = new float[N];
+        latitude = new float[N];
+        survivors = new int [N];
+        direction = new String[N];
+        division = new int [N];
+
+        for (int i=0; i<N; i++)
+        {
+            // LONT	TEMP	DAYS	MON	DAY	LONP	LATP	SURV	DIR	DIV
+            TableRow row = table.getRow(i);
+
+            longitude[i] = row.getFloat("LONP");
+            latitude[i] = 90 - row.getFloat("LATP");
+            survivors[i] = row.getInt("SURV");
+            direction[i] = row.getString("DIR");
+            division[i] = row.getInt("DIV");
+
+            if(longitude[i] < longitudeMin){
+                longitudeMin = longitude[i];
+            }
+
+            if(longitude[i] > longitudeMax){
+                longitudeMax = longitude[i];
+            }
+
+            if(latitude[i] < latitudeMin){
+                latitudeMin = latitude[i];
+            }
+
+            if(latitude[i] > latitudeMax){
+                latitudeMax = latitude[i];
+            }
+
+            if(temperature[i] < tempMin) {
+                tempMin = temperature[i];
+            }
+
+            if(temperature[i] > tempMax){
+                tempMax = temperature[i];
+            }
+
+            if(temperatureLongitude[i] < tempLongMin) {
+                tempLongMin = temperatureLongitude[i];
+            }
+
+            if(temperatureLongitude[i] > tempLongMax){
+                tempLongMax = temperatureLongitude[i];
+            }
+        }
+
+
+    }
+
+    public void AddFigures() {
+        readyTable(simpleTable);
+
+        String numberOfSurvivors = "";
+        float x, y;
+        textSize(12);
+
+        for(int i = 0; i < survivors.length; i++) {
+
+                x = normalise(longitude[i], longitudeMin, longitudeMax);
+                y = normalise(latitude[i], latitudeMin, latitudeMax);
+
+                x = scaleToGraph(x, GRAPH_WIDTH, WIDTH_PADDING);
+                y = scaleToGraph(y, GRAPH_HEIGHT, GRAPH_TOP_PADDING);
+                x -= 5;
+                if(direction[i].equals("A")) {
+                    y -= ((survivors[i] / 3000) + 5) / 2;
+                }
+                else {
+                    y += (((survivors[i] / 3000) + 5) / 2) + 20;
+                }
+                fill(0);
+                //if(division[i] == 1 || division[i] == 2) {
+                    if(survivors[i] != 98000) {
+                        numberOfSurvivors = i%1 == 0 ? (Float.toString(survivors[i] / 1000) + "K") : "";
+                        drawWhiteTextStroke(numberOfSurvivors, x, y);
+                        text(numberOfSurvivors, x, y);
+                    }
+                //}
+        }
     }
 
     public float normalise(float value, float min, float max) {
@@ -592,6 +701,16 @@ public class Main extends PApplet {
             text(text, x,y+i);
         }
         //noFill();
+    }
+
+    public void drawWhiteTextStroke(String text, float x, float y) {
+        fill(255);
+        for(int i = -1; i < 2; i++)
+        {
+            text(text, x+i,y);
+            text(text, x,y+i);
+        }
+        fill(0);
     }
 
     public float scaleToGraph(float value, int scale, int padding) {
