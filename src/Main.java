@@ -101,10 +101,10 @@ public class Main extends PApplet {
 
     public void setup() {
 
-        table = loadTable("minard-data.csv", "header");
-        simpleTable = loadTable("minard-simple.csv", "header");
+        table = loadTable("csv/minard-data.csv", "header");
+        simpleTable = loadTable("csv/minard-simple.csv", "header");
         setTable(table);
-        fortIcon = loadImage("simpleWhiteFort23.png");
+        fortIcon = loadImage("forts/simpleWhiteFort23.png");
         background(255);
 
         AddMap();
