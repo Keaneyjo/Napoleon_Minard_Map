@@ -60,6 +60,8 @@ public class Main extends PApplet {
 
     private static final int LOWER_TABLE_TEXT_HEIGHT = 70;
 
+    private static final int METRES_PER_LONGITUDE_DEGREE = 111120;
+
 
 
     public static PApplet processing;
@@ -118,7 +120,7 @@ public class Main extends PApplet {
     public void settings() {
         processing = this;
         processing.size(SCREEN_WIDTH, SCREEN_HEIGHT);
-        //processing.size(SCREEN_WIDTH, SCREEN_HEIGHT,  "processing.pdf.PGraphicsPDF", "assignment1.2final.pdf");
+        //processing.size(SCREEN_WIDTH, SCREEN_HEIGHT,  "processing.pdf.PGraphicsPDF", "[ANIMATED] assignment1.2.pdf");
         fullScreen();
 
     }
@@ -303,6 +305,8 @@ public class Main extends PApplet {
             stroke(0, 0, 0);
             fill(0);
 
+
+
             x = scaleToGraph(x, GRAPH_WIDTH, WIDTH_PADDING) - 25;
             y = scaleToGraph(y, 100, (LOWER_TABLE_TOP_PADDING + LOWER_TABLE_TEXT_HEIGHT)) + 20;
             if(i != 0 && temperature[i] != -11) {
@@ -311,15 +315,21 @@ public class Main extends PApplet {
                     y += 10;
                 }
                 if(temperature[i] == -24){
-                    x += 5;
-                    y -= 3;
+                    x += 12;
+                    y -= 2;
                 }
             }
             else if(temperature[i] == -11){
                 x += 15;
                 text = Float.toString(temperature[i]) + "°";
             }
-            text(text, x, y);
+            if(i != 0) {
+                text += " ("+days[i]+")";
+            }
+
+            text(text, x - (textWidth(" ("+days[i]+")") /  2), y);
+            // draw days of march
+
 
         }
 
@@ -437,18 +447,19 @@ public class Main extends PApplet {
         text(text, x, y);
     }
 
+    int i = 0;
     public void drawChart() {
         String numberOfSurvivors = "";
 
-        for(int i = 0; i < N-1; i++)
-        {
+//        for(int i = 0; i < N-1; i++)
+//        {
             if(direction[i].equals("R"))
             {
                 stroke(170, 170, 170);
             }
             else
             {
-                stroke(252, 174, 30, 70);
+                stroke(252, 174, 30);
             }
             //strokeJoin(MITER);
             strokeWeight((survivors[i] / 3000) + 5);
@@ -469,40 +480,83 @@ public class Main extends PApplet {
             if(direction[i].equals("A") && division[i] == 2) {
                 drawLastVerticalTemperatureLine();
             }
-        }
+//        }
     }
 
     public void draw()
     {
-        if(frameCount < 13) {
+        if(frameCount < N) {
             drawChart();
+            i++;
         }
 
-        if(frameCount == 13) {
+        if(frameCount == N+1) {
             drawCities(cityLatitude, cityLongitude, cityNames);
             drawTitleAndDescription();
             drawLowerTableTitle();
             drawLegend();
             AddFigures();
+            drawMetresLegend();
         }
 
-        if(frameCount == 21) {
-            //processing.size(SCREEN_WIDTH, SCREEN_HEIGHT,  "processing.pdf.PGraphicsPDF", "assignment1.2final.pdf");
-            noLoop();
-                beginRecord( "processing.pdf.PGraphicsPDF", "assignment1.2f.pdf");
-        }
-        if(frameCount == 22)
-        {
-            endRecord();
+//        if(frameCount == N+2) {
+//            //processing.size(SCREEN_WIDTH, SCREEN_HEIGHT,  "processing.pdf.PGraphicsPDF", "assignment1.2final.pdf");
+//            noLoop();
+//                beginRecord( "processing.pdf.PGraphicsPDF", "assignment1.2f.pdf");
+//        }
+//        if(frameCount == 22)
+//        {
+//            endRecord();
+//            //exit();
+//        }
+        if(frameCount > N+2) {
             //exit();
-        }
-        if(frameCount == 23) {
-
         }
 
 //        if (frameCount == 7) {
 //            exit();
 //        }
+
+    }
+
+    public void drawMetresLegend() {
+        stroke(0);
+        fill(0);
+        strokeWeight(1);
+        textSize(11);
+        float startingHeight = SCREEN_HEIGHT * 2.4f/5;
+        float startingWidth = SCREEN_WIDTH * 3.3f/5;
+        // 111120
+        // 100000
+        //  0.899928006
+
+        // 0, 100, 1000, 10000, 100000
+        float mLD;
+
+        // 0
+        textAlign(CENTER);
+        mLD = (startingWidth + scaleToGraph(normalise(longitudeMin, longitudeMin, longitudeMax), SCREEN_WIDTH, 0));
+        line(mLD, startingHeight-10, mLD, startingHeight);
+        text("0", mLD, startingHeight+10);
+
+        // 10000
+        mLD = (startingWidth + scaleToGraph(normalise(longitudeMin+0.089f, longitudeMin, longitudeMax), SCREEN_WIDTH, 0));
+        line(mLD, startingHeight-10, mLD, startingHeight+10);
+        text("10K", mLD, startingHeight+20);
+
+        // 50000
+        mLD = (startingWidth + scaleToGraph(normalise(longitudeMin+0.445f, longitudeMin, longitudeMax), SCREEN_WIDTH, 0));
+        line(mLD, startingHeight-10, mLD, startingHeight+10);
+        text("50K", mLD, startingHeight+20);
+        text("Kilometres (km) Distance", mLD, startingHeight-20);
+
+        // 100000
+        mLD = (startingWidth + scaleToGraph(normalise(longitudeMin+0.89f, longitudeMin, longitudeMax), SCREEN_WIDTH, 0));
+        line(mLD, startingHeight-10, mLD, startingHeight+10);
+        text("100K", mLD, startingHeight+20);
+
+        line(startingWidth, startingHeight, mLD, startingHeight);
+
 
     }
 
@@ -653,7 +707,7 @@ public class Main extends PApplet {
         strokeWeight(1);
         stroke(100);
         fill(245);
-        rect(x, y, 150, 170);
+        rect(x, y, 170, 220);
 
         fill(50);
         PFont myFont = createFont("Georgia Italic", 32);
@@ -691,6 +745,17 @@ public class Main extends PApplet {
         strokeWeight(strokeWidth);
         line(x, y, x, y);
         text("6K", x + 25, y + 5);
+
+
+        //text(, x - 10, y + 30);
+        //fill()
+        stroke(0, 0, 255);
+        strokeWeight(3);
+        x += 60;
+        line(x - 50, y + 30, x, y + 35);
+        line(x, y + 35, x + 50, y + 30);
+        x -= 60;
+        text("°C, Date, (Days diff.)", x - 20, y + 55);
     }
 
     public void drawTextStroke(String text, float x, float y) {
